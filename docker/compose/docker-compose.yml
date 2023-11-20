@@ -1,0 +1,23 @@
+version: "3.3"
+services:
+  db:
+    image: postgres:9.5-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: "main_db"
+      PGDATA: /pg-data
+    volumes:
+      - ./data/pg-data:/pg-data
+    ports:
+      - "127.0.0.1:5432:5432"
+
+  otus_user:
+    image: dmitrykharchenko95/otus_user:v0.0.7
+    environment:
+      SVC_ADDRESS: ":8000"
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASS: postgres
+      DB_NAME: main_db
