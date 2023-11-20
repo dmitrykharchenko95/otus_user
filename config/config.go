@@ -10,6 +10,7 @@ import (
 type Config struct {
 	Server server.Config   `json:"server"`
 	DB     database.Config `json:"db"`
+	JWTKey string          `json:"jwtKey"`
 }
 
 func NewFromENVs() Config {
@@ -24,5 +25,6 @@ func NewFromENVs() Config {
 			Password: os.Getenv("DB_PASS"),
 			Database: os.Getenv("DB_NAME"),
 		},
+		JWTKey: os.Getenv("JWT_KEY"),
 	}
 }

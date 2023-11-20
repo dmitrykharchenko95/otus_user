@@ -18,6 +18,7 @@ type (
 	Manager interface {
 		Add(ctx context.Context, u *entity.User) (int64, error)
 		Get(ctx context.Context, id int64) (*entity.User, error)
+		GetByEmail(ctx context.Context, email string) (*entity.User, error)
 		Delete(ctx context.Context, id int64) error
 		Update(ctx context.Context, u *entity.User) error
 
@@ -94,9 +95,9 @@ func (m *manager) Add(ctx context.Context, u *entity.User) (int64, error) {
 		ctx,
 		`
 			INSERT INTO users(
-				username, first_name, last_name, email, phone
+				username, first_name, last_name, email,  phone, salt, password_hash
 			)
-			VALUES ($1, $2, $3, $4, $5)
+			VALUES ($1, $2, $3, $4, $5, $6, $7)
 			RETURNING id
 		`,
 		u.Username,
@@ -104,6 +105,8 @@ func (m *manager) Add(ctx context.Context, u *entity.User) (int64, error) {
 		u.LastName,
 		u.Email,
 		u.Phone,
+		u.Salt,
+		u.PasswordHash,
 	).Scan(&id); err != nil {
 		return 0, err
 	}
@@ -115,7 +118,7 @@ func (m *manager) Get(ctx context.Context, id int64) (*entity.User, error) {
 	var u = &entity.User{}
 	if err := m.db.QueryRowContext(
 		ctx,
-		"SELECT id, username, first_name, last_name, email, phone FROM users WHERE id = $1",
+		"SELECT id, username, first_name, last_name, email, phone, salt, password_hash FROM users WHERE id = $1",
 		id,
 	).Scan(
 		&u.Id,
@@ -124,6 +127,8 @@ func (m *manager) Get(ctx context.Context, id int64) (*entity.User, error) {
 		&u.LastName,
 		&u.Email,
 		&u.Phone,
+		&u.Salt,
+		&u.PasswordHash,
 	); err != nil {
 		return nil, err
 	}
@@ -154,6 +159,28 @@ func (m *manager) Update(ctx context.Context, u *entity.User) error {
 
 func (m *manager) Ping() error {
 	return m.db.Ping()
+}
+
+func (m *manager) GetByEmail(ctx context.Context, email string) (*entity.User, error) {
+	var u = &entity.User{}
+	if err := m.db.QueryRowContext(
+		ctx,
+		"SELECT id, username, first_name, last_name, email, phone, salt, password_hash FROM users WHERE email = $1",
+		email,
+	).Scan(
+		&u.Id,
+		&u.Username,
+		&u.FirstName,
+		&u.LastName,
+		&u.Email,
+		&u.Phone,
+		&u.Salt,
+		&u.PasswordHash,
+	); err != nil {
+		return nil, err
+	}
+
+	return u, nil
 }
 
 func (c *Config) validate() error {

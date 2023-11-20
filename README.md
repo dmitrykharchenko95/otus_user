@@ -14,5 +14,9 @@ export DB_NAME=main_db
 ```shell
 GOOS=linux GOARCH=amd64 go build -o ./docker/bin/otus_user cmd/app/main.go 
 docker build -t dmitrykharchenko95/otus_user:v0.0.8  ./docker
+```
 
+## build docker image migrations
+```shell
+docker build -t dmitrykharchenko95/otus_user_migrate:v0.0.2  ./docker
 ```

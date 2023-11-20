@@ -19,6 +19,10 @@ func main() {
 		db, err = database.New(cfg.DB)
 	)
 
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	var migrate string
 	flag.StringVar(&migrate, "m", "", "migrate up/down")
 	flag.Parse()
@@ -34,7 +38,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	var svc = server.NewServer(cfg.Server, handlers.NewHandler(db))
+	var svc = server.NewServer(cfg.Server, handlers.NewHandler(db, cfg.JWTKey))
 
 	if err = svc.Start(); err != nil {
 		log.Fatal(err)

@@ -151,6 +151,10 @@ func exclude(path string) bool {
 	return path == "/health" || path == "/metrics"
 }
 
+func noAuth(path string) bool {
+	return path == "/health" || path == "/metrics" || path == "/login" || path == "/user"
+}
+
 func replaceNumbersWithAsterisk(input string) string {
 	return regexp.MustCompile(`/\d+`).ReplaceAllString(input, "/*")
 }
